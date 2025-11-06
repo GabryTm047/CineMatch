@@ -1,0 +1,52 @@
+<section class="results">
+  <ng-container *ngIf="hasResult(); else emptyState">
+    <header class="results-header">
+      <p class="eyebrow">Il tuo profilo CineMatch</p>
+      <h1>
+        Il genere che più ti rappresenta è
+        <ng-container *ngIf="topGenre() as genre; else discover">
+          <span class="highlight">{{ genre.label }}</span>
+        </ng-container>
+      </h1>
+      <p class="lead">
+        Ecco come si distribuiscono le tue preferenze sui {{ totalAnswers() }} scenari proposti.
+      </p>
+    </header>
+
+    <div class="results-content">
+      <app-pie-chart class="chart" [data]="chartData()"></app-pie-chart>
+
+      <div class="breakdown">
+        <h2>Le tue percentuali</h2>
+        <ul>
+          <li *ngFor="let entry of breakdown(); trackBy: trackGenre">
+            <span class="badge" [style.background]="entry.genre.color"></span>
+            <div class="info">
+              <span class="label">{{ entry.genre.label }}</span>
+              <span class="meta">
+                {{ entry.count }} risposte · {{ entry.percentage }}%
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <footer class="actions">
+      <button type="button" class="primary" (click)="repeatQuiz()">Rifai il test</button>
+      <button type="button" class="ghost" (click)="goHome()">Torna alla home</button>
+    </footer>
+  </ng-container>
+
+  <ng-template #discover>
+    <span class="highlight">da scoprire</span>
+  </ng-template>
+
+  <ng-template #emptyState>
+    <div class="missing">
+      <h2>Nessun risultato disponibile</h2>
+      <p>Completa il questionario per generare il tuo grafico personale.</p>
+      <button type="button" class="primary" (click)="repeatQuiz()">Vai al questionario</button>
+    </div>
+  </ng-template>
+</section>

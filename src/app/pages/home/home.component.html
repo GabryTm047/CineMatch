@@ -1,0 +1,64 @@
+<section class="home">
+  <header class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">
+        Ciao,
+        <span>{{ user()?.name || 'cinematofilo' }}</span>
+      </p>
+      <h1>
+        Scopri il mix perfetto di generi per la tua prossima maratona.
+      </h1>
+      <p class="lead">
+        Rispondi a 20 domande mirate sui tuoi gusti: CineMatch creerà una mappa personalizzata
+        delle percentuali dei generi che ami di più.
+      </p>
+      <div class="buttons">
+        <button type="button" class="primary" (click)="startQuiz()">Inizia qui</button>
+        <button type="button" class="ghost" (click)="logout()">Esci</button>
+      </div>
+      <p class="guest-hint" *ngIf="user()?.isGuest">
+        Stai esplorando come ospite. Registrati per salvare i risultati in seguito.
+      </p>
+    </div>
+
+    <div class="hero-card">
+      <div class="card-title">Come funziona?</div>
+      <ul>
+        <li>
+          <span class="badge">1</span>
+          Rispondi a domande rapide sui tuoi interessi cinematografici.
+        </li>
+        <li>
+          <span class="badge">2</span>
+          Scopri il tuo profilo di gusti con un grafico a torta interattivo.
+        </li>
+        <li>
+          <span class="badge">3</span>
+          Utilizza le percentuali per scegliere i film perfetti per te.
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="highlights">
+    <article>
+      <h2>Domande studiate dai nostri esperti</h2>
+      <p>
+        Ogni risposta associa emozioni, ritmo e atmosfere ai corrispondenti generi cinematografici.
+        In meno di cinque minuti ottieni un profilo accurato dei tuoi gusti.
+      </p>
+    </article>
+    <article>
+      <h2>Grafico finale immediato</h2>
+      <p>
+        Visualizza le percentuali in un grafico a torta elegante e condivisibile, ideale per decidere rapidamente cosa guardare con amici o famiglia.
+      </p>
+    </article>
+    <article>
+      <h2>Risultati sempre aggiornati</h2>
+      <p>
+        Puoi rifare il test ogni volta che vuoi: CineMatch aggiorna il tuo profilo in base al momento e all’umore della serata.
+      </p>
+    </article>
+  </section>
+</section>

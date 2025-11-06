@@ -1,0 +1,17 @@
+<div class="chart-shell" [class.chart-shell--empty]="!hasData()">
+  <div class="chart" *ngIf="hasData(); else emptyChart" [style.background]="gradient()"></div>
+</div>
+
+<ng-template #emptyChart>
+  <div class="chart-placeholder">
+    <p>Nessun dato da visualizzare.</p>
+  </div>
+</ng-template>
+
+<ul class="legend">
+  <li *ngFor="let slice of data; trackBy: trackSlice">
+    <span class="swatch" [style.background]="slice.color"></span>
+    <span class="label">{{ slice.label }}</span>
+    <span class="value">{{ slice.percentage }}%</span>
+  </li>
+</ul>

@@ -1,0 +1,132 @@
+<section class="auth-wrapper">
+  <div class="brand">
+    <h1>CineMatch</h1>
+    <p>Scegli chi vuoi essere, noi ti suggeriremo cosa guardare.</p>
+  </div>
+
+  <div class="auth-card">
+    <header class="auth-header">
+      <ng-container *ngIf="registerMode; else loginHeader">
+        <h2>Crea il tuo profilo</h2>
+        <p>Registra un account per salvare le preferenze dei tuoi film preferiti.</p>
+      </ng-container>
+      <ng-template #loginHeader>
+        <h2>Bentornato!</h2>
+        <p>Accedi per riprendere il viaggio tra i tuoi generi cinematografici.</p>
+      </ng-template>
+
+      <button type="button" class="toggle" (click)="toggleMode()">
+        <ng-container *ngIf="registerMode; else switchToRegister">
+          Hai già un account? <span>Accedi</span>
+        </ng-container>
+        <ng-template #switchToRegister>
+          Sei nuovo qui? <span>Registrati</span>
+        </ng-template>
+      </button>
+    </header>
+
+    <div class="alert alert-error" *ngIf="errorMessage() as error">{{ error }}</div>
+
+    <div class="alert alert-info" *ngIf="infoMessage() as info">{{ info }}</div>
+
+    <form
+      class="auth-form"
+      [formGroup]="registerMode ? registerForm : loginForm"
+      (ngSubmit)="submit()"
+      novalidate
+    >
+      <div class="form-field" *ngIf="registerMode">
+        <label for="name">Nome</label>
+        <input
+          id="name"
+          type="text"
+          maxlength="40"
+          placeholder="Es. Giulia"
+          formControlName="name"
+          [class.invalid]="registerControls.name.touched && registerControls.name.invalid"
+        />
+        <span class="field-error" *ngIf="registerControls.name.touched && registerControls.name.invalid">
+          Inserisci almeno 2 caratteri.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          placeholder="nome@esempio.com"
+          formControlName="email"
+          [class.invalid]="registerMode
+            ? registerControls.email.touched && registerControls.email.invalid
+            : loginControls.email.touched && loginControls.email.invalid"
+        />
+        <span
+          class="field-error"
+          *ngIf="registerMode && registerControls.email.touched && registerControls.email.invalid"
+        >
+          Inserisci un indirizzo email valido.
+        </span>
+        <span
+          class="field-error"
+          *ngIf="!registerMode && loginControls.email.touched && loginControls.email.invalid"
+        >
+          Indica la tua email per accedere.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          placeholder="Almeno 6 caratteri"
+          formControlName="password"
+          [class.invalid]="registerMode
+            ? registerControls.password.touched && registerControls.password.invalid
+            : loginControls.password.touched && loginControls.password.invalid"
+        />
+        <span
+          class="field-error"
+          *ngIf="registerMode && registerControls.password.touched && registerControls.password.invalid"
+        >
+          La password deve avere almeno 6 caratteri.
+        </span>
+        <span
+          class="field-error"
+          *ngIf="!registerMode && loginControls.password.touched && loginControls.password.invalid"
+        >
+          Inserisci la tua password.
+        </span>
+      </div>
+
+      <div class="form-field" *ngIf="registerMode">
+        <label for="confirmPassword">Conferma password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          placeholder="Ripeti la password"
+          formControlName="confirmPassword"
+          [class.invalid]="registerControls.confirmPassword.touched
+            && (registerControls.confirmPassword.invalid || registerForm.hasError('mismatch'))"
+        />
+        <span
+          class="field-error"
+          *ngIf="registerControls.confirmPassword.touched
+            && (registerControls.confirmPassword.invalid || registerForm.hasError('mismatch'))"
+        >
+          Le password devono coincidere.
+        </span>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="primary">
+          {{ registerMode ? 'Registrati' : 'Accedi' }}
+        </button>
+        <button type="button" class="ghost" (click)="continueAsGuest()">
+          Entra come ospite
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

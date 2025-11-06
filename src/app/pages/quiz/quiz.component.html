@@ -1,0 +1,48 @@
+<section class="quiz">
+  <header class="quiz-header">
+    <p class="progress-label">
+      Domanda {{ currentIndex() + 1 }} di {{ totalQuestions }}
+    </p>
+    <div
+      class="progress-track"
+      role="progressbar"
+      [attr.aria-valuenow]="progressValue()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <div class="progress-fill" [style.width.%]="progressValue()"></div>
+    </div>
+  </header>
+
+  <article class="question-card">
+    <div class="question-head">
+      <div class="question-number">#{{ currentQuestion().id.toString().padStart(2, '0') }}</div>
+      <h2>{{ currentQuestion().text }}</h2>
+    </div>
+
+    <div class="options">
+      <button
+        type="button"
+        class="option"
+        *ngFor="let option of currentQuestion().options; trackBy: trackOption"
+        (click)="selectOption(option)"
+        [class.selected]="selectedAnswer() === option.genre"
+        [attr.aria-pressed]="selectedAnswer() === option.genre"
+      >
+        <span class="option-label">{{ option.label }}</span>
+        <span class="option-helper" *ngIf="option.helper">{{ option.helper }}</span>
+      </button>
+    </div>
+
+    <p class="error" *ngIf="errorMessage() as error">{{ error }}</p>
+
+    <footer class="controls">
+      <button type="button" class="ghost" (click)="goPrevious()" [disabled]="isFirstQuestion()">
+        Indietro
+      </button>
+      <button type="button" class="primary" (click)="goNext()">
+        {{ isLastQuestion() ? 'Concludi il test' : 'Prossima domanda' }}
+      </button>
+    </footer>
+  </article>
+</section>
