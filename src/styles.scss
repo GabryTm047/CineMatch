@@ -1,7 +1,30 @@
+@use 'sass:color';
+
 *,
 *::before,
 *::after {
 	box-sizing: border-box;
+}
+
+$primary-color: #5d17eb;
+$primary-color-dark: color.adjust($primary-color, $lightness: -12%);
+$primary-color-light: color.adjust($primary-color, $lightness: 12%);
+$primary-color-lighter: color.adjust($primary-color, $lightness: 24%);
+$primary-color-soft: rgba($primary-color, 0.18);
+$primary-color-softer: rgba($primary-color, 0.12);
+$primary-color-glow: rgba($primary-color, 0.35);
+$primary-color-glow-strong: rgba($primary-color, 0.45);
+
+:root {
+	--color-primary: #{$primary-color};
+	--color-primary-dark: #{$primary-color-dark};
+	--color-primary-light: #{$primary-color-light};
+	--color-primary-lighter: #{$primary-color-lighter};
+	--color-primary-soft: #{$primary-color-soft};
+	--color-primary-softer: #{$primary-color-softer};
+	--color-primary-glow: #{$primary-color-glow};
+	--color-primary-glow-strong: #{$primary-color-glow-strong};
+	--color-on-primary: #0b021c;
 }
 
 html,
