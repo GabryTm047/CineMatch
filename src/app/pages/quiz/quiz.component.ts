@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { GenreId, QuizOption, QuizQuestion, QuizService } from '../../services/quiz.service';
-
+import { QuizService } from '../../services/quiz.service';
+import { QuizQuestion, GenreId, QuizOption } from '../../shared/quiz.interface';
 @Component({
   selector: 'app-quiz',
   standalone: true,

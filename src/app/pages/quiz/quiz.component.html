@@ -30,7 +30,9 @@
         [attr.aria-pressed]="selectedAnswer() === option.genre"
       >
         <span class="option-label">{{ option.label }}</span>
-        <span class="option-helper" *ngIf="option.helper">{{ option.helper }}</span>
+        @if (option.helper) {
+          <span class="option-helper">{{ option.helper }}</span>
+        }
       </button>
     </div>
 
