@@ -85,7 +85,7 @@ export class QuizService {
     try {
       const user = this.auth.currentUser();
       const docData = {
-        uid: user?.email ?? 'guest',
+        uid: user?.uid ?? 'anonymous',
         name: user?.name ?? 'Utente',
         email: user?.email ?? null,
         isGuest: user?.isGuest ?? true,
@@ -108,10 +108,10 @@ export class QuizService {
 
   async getMyLatestResults(max: number = 10): Promise<any[]> {
     const user = this.auth.currentUser();
-    if (!user?.email) return [];
+    if (!user?.uid) return [];
     const q = query(
       collection(this.firestore, 'quizResults'),
-      where('email', '==', user.email),
+      where('uid', '==', user.uid),
       orderBy('createdAt', 'desc'),
       limit(max)
     );

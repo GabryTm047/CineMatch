@@ -16,6 +16,7 @@ import {
 import { firebaseConfig } from '../../firebase.config';
 
 export interface AuthUser {
+  readonly uid: string;
   readonly name: string;
   readonly email: string;
   readonly isGuest: boolean;
@@ -34,9 +35,10 @@ export class AuthService {
     onAuthStateChanged(this.firebaseAuth, (user: User | null) => {
       if (user) {
         const mapped: AuthUser = {
+          uid: user.uid,
           name: user.displayName ?? user.email ?? 'Utente',
           email: user.email ?? 'unknown@local',
-          isGuest: false,
+          isGuest: user.isAnonymous ?? false,
         };
         this.setCurrentUser(mapped);
       } else {
