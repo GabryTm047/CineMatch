@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
 import { PieChartComponent, PieChartSlice } from '../../components/pie-chart/pie-chart.component';
-import { QuizBreakdownEntry, QuizService } from '../../services/quiz.service';
+import { QuizService } from '../../services/quiz.service';
+import { QuizBreakdownEntry } from '../../shared/quiz.interface';
 
 @Component({
   selector: 'app-results',

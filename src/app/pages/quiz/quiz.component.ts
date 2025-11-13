@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { GenreId, QuizOption, QuizQuestion, QuizService } from '../../services/quiz.service';
-
+import { QuizService } from '../../services/quiz.service';
+import { QuizQuestion, GenreId, QuizOption } from '../../shared/quiz.interface';
 @Component({
   selector: 'app-quiz',
   standalone: true,
@@ -15,7 +14,7 @@ export class QuizComponent {
   private readonly router = inject(Router);
   private readonly quizService = inject(QuizService);
 
-  readonly questions: QuizQuestion[] = this.quizService.questions;
+  readonly questions: QuizQuestion[] = this.quizService.startNewSession(10);
   readonly totalQuestions = this.questions.length;
 
   readonly currentIndex = signal(0);

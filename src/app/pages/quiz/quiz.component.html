@@ -16,7 +16,6 @@
 
   <article class="question-card">
     <div class="question-head">
-      <div class="question-number">#{{ currentQuestion().id.toString().padStart(2, '0') }}</div>
       <h2>{{ currentQuestion().text }}</h2>
     </div>
 
@@ -30,7 +29,9 @@
         [attr.aria-pressed]="selectedAnswer() === option.genre"
       >
         <span class="option-label">{{ option.label }}</span>
-        <span class="option-helper" *ngIf="option.helper">{{ option.helper }}</span>
+        @if (option.helper) {
+          <span class="option-helper">{{ option.helper }}</span>
+        }
       </button>
     </div>
 

@@ -6,19 +6,20 @@
         <span>{{ user()?.name || 'cinematofilo' }}</span>
       </p>
       <h1>
-        Scopri il mix perfetto di generi per la tua prossima maratona.
+        Scopri il mix perfetto di generi per la tua prossima visione
       </h1>
       <p class="lead">
-        Rispondi a 20 domande mirate sui tuoi gusti: CineMatch creerà una mappa personalizzata
-        delle percentuali dei generi che ami di più.
+        Rispondi a 10 domande mirate sui tuoi gusti attuali: CineMatch ti dira i generi che ami di più in base il mood attuale.
       </p>
       <div class="buttons">
         <button type="button" class="primary" (click)="startQuiz()">Inizia qui</button>
         <button type="button" class="ghost" (click)="logout()">Esci</button>
       </div>
-      <p class="guest-hint" *ngIf="user()?.isGuest">
-        Stai esplorando come ospite. Registrati per salvare i risultati in seguito.
-      </p>
+      @if (user()?.isGuest) {
+        <p class="guest-hint">
+          Stai esplorando come ospite. Registrati per salvare i risultati in seguito
+        </p>
+      }
     </div>
 
     <div class="hero-card">
@@ -26,15 +27,15 @@
       <ul>
         <li>
           <span class="badge">1</span>
-          Rispondi a domande rapide sui tuoi interessi cinematografici.
+          Rispondi a domande rapide sui tuoi interessi
         </li>
         <li>
           <span class="badge">2</span>
-          Scopri il tuo profilo di gusti con un grafico a torta interattivo.
+          Scopri i tuoi gusti tramite un grafico a torta
         </li>
         <li>
           <span class="badge">3</span>
-          Utilizza le percentuali per scegliere i film perfetti per te.
+          Scegli il film che matcha di più con te stasera
         </li>
       </ul>
     </div>
@@ -57,8 +58,32 @@
     <article>
       <h2>Risultati sempre aggiornati</h2>
       <p>
-        Puoi rifare il test ogni volta che vuoi: CineMatch aggiorna il tuo profilo in base al momento e all’umore della serata.
+        Puoi rifare il test ogni volta che vuoi: CineMatch aggiorna il tuo profilo in base al momento e all'umore della serata.
       </p>
     </article>
   </section>
+
+  <!-- <section class="results-lists">
+    <div class="results-block">
+      <h2>I miei ultimi quiz</h2>
+      <ul>
+        <li *ngFor="let r of myResults()">
+          <span>{{ r.createdAt?.toDate ? (r.createdAt.toDate() | date:'short') : '' }}</span>
+          — <strong>{{ r.name || r.email || 'Utente' }}</strong>
+          — {{ r.breakdown?.[0]?.label || 'N/D' }} ({{ r.breakdown?.[0]?.percentage || 0 }}%)
+        </li>
+      </ul>
+    </div>
+
+    <div class="results-block">
+      <h2>Ultimi quiz di tutti</h2>
+      <ul>
+        <li *ngFor="let r of latestResults()">
+          <span>{{ r.createdAt?.toDate ? (r.createdAt.toDate() | date:'short') : '' }}</span>
+          — <strong>{{ r.name || r.email || 'Utente' }}</strong>
+          — {{ r.breakdown?.[0]?.label || 'N/D' }} ({{ r.breakdown?.[0]?.percentage || 0 }}%)
+        </li>
+      </ul>
+    </div>
+  </section> -->
 </section>
