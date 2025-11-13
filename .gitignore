@@ -5,6 +5,7 @@
 /tmp
 /out-tsc
 /bazel-out
+/.firebase
 
 # Node
 /node_modules
@@ -37,7 +38,11 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+/package-lock.json
 
 # System files
 .DS_Store
 Thumbs.db
+
+# Firebase config file
+/src/firebase.config.ts

@@ -1,10 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-
 import { AuthService } from '../../services/auth.service';
-
 @Component({
   selector: 'app-auth',
   standalone: true,
@@ -12,14 +9,12 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss']
 })
+
 export class AuthComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-
   readonly isRegisterMode = signal(false);
 
-  // Validator method needs to be defined before it's referenced by form initialization
   private passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password')?.value as string | null;
     const confirm = control.get('confirmPassword')?.value as string | null;
@@ -66,7 +61,7 @@ export class AuthComponent {
     this.registerForm.reset();
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     const form = this.activeForm();
     if (form.invalid) {
       form.markAllAsTouched();
@@ -79,9 +74,8 @@ export class AuthComponent {
     if (this.isRegisterMode()) {
       const { name, email, password } = this.registerForm.getRawValue();
       try {
-        this.authService.register(name, email, password);
+        await this.authService.register(name, email, password);
         this.infoMessage.set('Registrazione completata! Benvenuto su CineMatch.');
-        void this.router.navigate(['/home']);
       } catch (error) {
         this.errorMessage.set(error instanceof Error ? error.message : 'Registrazione non riuscita.');
       }
@@ -90,17 +84,31 @@ export class AuthComponent {
 
     const { email, password } = this.loginForm.getRawValue();
     try {
-      this.authService.login(email, password);
+      await this.authService.login(email, password);
       this.infoMessage.set('Bentornato!');
-      void this.router.navigate(['/home']);
     } catch (error) {
       this.errorMessage.set(error instanceof Error ? error.message : 'Accesso non riuscito.');
     }
   }
 
-  continueAsGuest(): void {
-    this.authService.loginAsGuest();
-    this.infoMessage.set('Accesso come ospite attivato.');
-    void this.router.navigate(['/home']);
+  async continueAsGuest(): Promise<void> {
+    try {
+      await this.authService.loginAsGuest();
+      this.infoMessage.set('Accesso anonimo attivato.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Accesso anonimo non riuscito.';
+      this.errorMessage.set(message);
+    }
+  }
+
+  async continueWithGoogle(): Promise<void> {
+    this.errorMessage.set(null);
+    try {
+      await this.authService.loginWithGoogle();
+      this.infoMessage.set('Accesso con Google completato.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Accesso Google non riuscito.';
+      this.errorMessage.set(message);
+    }
   }
 }
