@@ -62,4 +62,28 @@
       </p>
     </article>
   </section>
+
+  <!-- <section class="results-lists">
+    <div class="results-block">
+      <h2>I miei ultimi quiz</h2>
+      <ul>
+        <li *ngFor="let r of myResults()">
+          <span>{{ r.createdAt?.toDate ? (r.createdAt.toDate() | date:'short') : '' }}</span>
+          — <strong>{{ r.name || r.email || 'Utente' }}</strong>
+          — {{ r.breakdown?.[0]?.label || 'N/D' }} ({{ r.breakdown?.[0]?.percentage || 0 }}%)
+        </li>
+      </ul>
+    </div>
+
+    <div class="results-block">
+      <h2>Ultimi quiz di tutti</h2>
+      <ul>
+        <li *ngFor="let r of latestResults()">
+          <span>{{ r.createdAt?.toDate ? (r.createdAt.toDate() | date:'short') : '' }}</span>
+          — <strong>{{ r.name || r.email || 'Utente' }}</strong>
+          — {{ r.breakdown?.[0]?.label || 'N/D' }} ({{ r.breakdown?.[0]?.percentage || 0 }}%)
+        </li>
+      </ul>
+    </div>
+  </section> -->
 </section>
