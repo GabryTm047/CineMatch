@@ -12,18 +12,24 @@
 
 .brand {
   text-align: center;
-
-  h1 {
+	justify-content: last baseline;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+  
+  p.brand-name {
     margin: 0;
     font-size: clamp(2.5rem, 5vw, 3.75rem);
     letter-spacing: 0.12em;
-    text-transform: uppercase;
     font-weight: 700;
+  }
+
+  span.color-text {
+    color: var(--color-primary);
   }
 
   p {
     margin-top: 0.75rem;
-    color: rgba(245, 247, 250, 0.75);
     font-size: 1rem;
   }
 }
@@ -178,9 +184,30 @@
       border-color: rgba(148, 163, 184, 0.45);
       color: #f8fafc;
     }
+
+    &.with-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+
+      .icon {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+      }
+    }
   }
 }
-
+.brand-logo {
+  width: 16rem;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
 @media (min-width: 1024px) {
   .auth-wrapper {
     flex-direction: row;

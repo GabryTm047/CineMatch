@@ -9,16 +9,18 @@
         Scopri il mix perfetto di generi per la tua prossima maratona.
       </h1>
       <p class="lead">
-        Rispondi a 20 domande mirate sui tuoi gusti: CineMatch creerà una mappa personalizzata
+        Rispondi a 10 domande mirate sui tuoi gusti: CineMatch creerà una mappa personalizzata
         delle percentuali dei generi che ami di più.
       </p>
       <div class="buttons">
         <button type="button" class="primary" (click)="startQuiz()">Inizia qui</button>
         <button type="button" class="ghost" (click)="logout()">Esci</button>
       </div>
-      <p class="guest-hint" *ngIf="user()?.isGuest">
-        Stai esplorando come ospite. Registrati per salvare i risultati in seguito.
-      </p>
+      @if (user()?.isGuest) {
+        <p class="guest-hint">
+          Stai esplorando come ospite. Registrati per salvare i risultati in seguito.
+        </p>
+      }
     </div>
 
     <div class="hero-card">

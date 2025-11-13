@@ -1,7 +1,10 @@
 <section class="auth-wrapper">
   <div class="brand">
-    <h1>CineMatch</h1>
-    <p>Scegli chi vuoi essere, noi ti suggeriremo cosa guardare.</p>
+    <p class="brand-name"><span class="color-text">Cine</span>Match</p>
+    <p>Smetti di cercare, inizia a guardare</p>
+    <div class="brand-logo">
+      <img src="../../../assets/imgs/CineMatch_logo.JPG" alt="CineMatch Logo" />
+    </div>
   </div>
 
   <div class="auth-card">
@@ -12,7 +15,7 @@
       </ng-container>
       <ng-template #loginHeader>
         <h2>Bentornato!</h2>
-        <p>Accedi per riprendere il viaggio tra i tuoi generi cinematografici.</p>
+        <p>Effettua il login per visualizzare i film selezionati apposta per te.</p>
       </ng-template>
 
       <button type="button" class="toggle" (click)="toggleMode()">
@@ -41,7 +44,7 @@
           id="name"
           type="text"
           maxlength="40"
-          placeholder="Es. Giulia"
+          placeholder="Es. Gabriele"
           formControlName="name"
           [class.invalid]="registerControls.name.touched && registerControls.name.invalid"
         />
@@ -55,7 +58,7 @@
         <input
           id="email"
           type="email"
-          placeholder="nome@esempio.com"
+          placeholder="tuamail@esempio.com"
           formControlName="email"
           [class.invalid]="registerMode
             ? registerControls.email.touched && registerControls.email.invalid
@@ -126,8 +129,9 @@
         <button type="button" class="ghost" (click)="continueAsGuest()">
           Entra come ospite
         </button>
-        <button type="button" class="ghost" (click)="continueWithGoogle()">
-          Continua con Google
+        <button type="button" class="ghost with-icon" (click)="continueWithGoogle()">
+          <img src="assets/imgs/google.svg" alt="Google" class="icon" />
+          <span>Continua con Google</span>
         </button>
       </div>
     </form>
