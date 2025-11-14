@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
+import { recaptchaSiteKey } from '../../../firebase.config';
 import { QuizQuestion, GenreId, QuizOption } from '../../shared/quiz.interface';
 @Component({
   selector: 'app-quiz',
@@ -67,14 +68,30 @@ export class QuizComponent {
 
   private finishQuiz(): void {
     const answers = this.selections();
-  if (answers.some((answer: GenreId | null) => answer === null)) {
+    if (answers.some((answer: GenreId | null) => answer === null)) {
       this.errorMessage.set('Rispondi a tutte le domande prima di concludere il test.');
       return;
     }
-
-  const normalizedAnswers = answers.map((answer: GenreId | null) => answer as GenreId);
-    this.quizService.submitAnswers(normalizedAnswers);
-    void this.router.navigate(['/results']);
+    const normalizedAnswers = answers.map((answer: GenreId | null) => answer as GenreId);
+    // Obtain reCAPTCHA v3 token then submit (site key from firebase.config.ts)
+    // Action must match EXPECTED_ACTION in Cloud Function (quiz_submit)
+    // @ts-ignore global grecaptcha
+    if (typeof grecaptcha === 'undefined') {
+      this.errorMessage.set('reCAPTCHA non disponibile. Riprova piu tardi.');
+      return;
+    }
+    // @ts-ignore
+    grecaptcha.ready(() => {
+      // @ts-ignore
+      grecaptcha.execute(recaptchaSiteKey, { action: 'quiz_submit' })
+        .then((token: string) => this.quizService.submitAnswersWithRecaptcha(normalizedAnswers, token))
+        .then(() => {
+          void this.router.navigate(['/results']);
+        })
+        .catch((err: any) => {
+          this.errorMessage.set(err?.message || 'Errore verifica reCAPTCHA.');
+        });
+    });
   }
 
   trackOption(index: number, option: QuizOption): string {

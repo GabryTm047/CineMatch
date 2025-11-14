@@ -12,6 +12,19 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
     }
 
+    // User preferences (one doc per user: users/{uid}/preferences/current)
+    match /users/{userId}/preferences/{prefId} {
+      allow read, create, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; // prevent accidental deletion
+    }
+
+    // Counter for progressive guest naming: counters/guests
+    match /counters/{counterId} {
+      allow create, update: if request.auth != null && counterId == 'guests';
+      allow read: if false; // not needed client-side
+      allow delete: if false;
+    }
+
     // Deny everything else by default
     match /{document=**} {
       allow read, write: if false;

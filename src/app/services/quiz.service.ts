@@ -10,7 +10,7 @@ import {
 } from '../shared/quiz.interface';
 import { AuthService } from './auth.service';
 import { getApps, initializeApp } from 'firebase/app';
-import { getFirestore, addDoc, collection, serverTimestamp, query, where, orderBy, limit, getDocs, Firestore } from 'firebase/firestore';
+import { getFirestore, addDoc, collection, serverTimestamp, query, where, orderBy, limit, getDocs, Firestore, doc, setDoc } from 'firebase/firestore';
 import { firebaseConfig } from '../../firebase.config';
 
 @Injectable({ providedIn: `root` })
@@ -58,8 +58,7 @@ export class QuizService {
 
     const result: QuizResult = { answers: [...answers], breakdown, totalAnswers: total };
     this.lastResultSignal.set(result);
-    void this.saveResultToFirestore(result);
-    return result;
+    return result; 
   }
 
   getGenreInfo(id: GenreId): GenreInfo {
@@ -100,9 +99,73 @@ export class QuizService {
         })),
         createdAt: serverTimestamp(),
       } as const;
-      await addDoc(collection(this.firestore, 'quizResults'), docData);
+
     } catch {
-      // ignore persistence errors for UX flow
+    }
+  }
+
+  async submitAnswersWithRecaptcha(answers: GenreId[], recaptchaToken: string): Promise<QuizResult> {
+    const result = this.submitAnswers(answers);
+    const user = this.auth.currentUser();
+    const payload = {
+      token: recaptchaToken,
+      answers: result.answers,
+      breakdown: result.breakdown.map(e => ({
+        id: e.genre.id,
+        label: e.genre.label,
+        color: e.genre.color,
+        count: e.count,
+        percentage: e.percentage,
+      })),
+      totalAnswers: result.totalAnswers,
+      uid: user?.uid ?? 'anonymous',
+      name: user?.name ?? 'Utente',
+      isGuest: user?.isGuest ?? true,
+    };
+    try {
+      const resp = await fetch('https://europe-west1-cinematch-gc.cloudfunctions.net/verifyRecaptchaV3AndSaveQuiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        throw new Error(`Verifica reCAPTCHA fallita (${resp.status})`);
+      }
+      const data = await resp.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Verifica non riuscita');
+      }
+      return result;
+    } catch (err) {
+      this.lastResultSignal.set(null);
+      throw err;
+    }
+  }
+
+  private async savePreferencesForUser(result: QuizResult): Promise<void> {
+    const user = this.auth.currentUser();
+    if (!user?.uid) return;
+    try {
+      const prefRef = doc(this.firestore, 'users', user.uid, 'preferences', 'current');
+      const topGenres = result.breakdown.slice(0, 5).map(e => ({
+        id: e.genre.id,
+        label: e.genre.label,
+        percentage: e.percentage,
+        color: e.genre.color,
+        count: e.count,
+      }));
+      const prefData = {
+        uid: user.uid,
+        name: user.name,
+        isGuest: user.isGuest,
+        totalAnswers: result.totalAnswers,
+        topGenres,
+        breakdown: topGenres, // store light breakdown (top 5)
+        updatedAt: serverTimestamp(),
+      } as const;
+      await setDoc(prefRef, prefData, { merge: true });
+    } catch {
+      // ignore preference write errors silently
     }
   }
 

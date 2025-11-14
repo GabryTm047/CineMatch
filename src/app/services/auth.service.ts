@@ -13,6 +13,7 @@ import {
   signInAnonymously,
   updateProfile,
 } from 'firebase/auth';
+import { getFirestore, runTransaction, doc, getDoc, setDoc } from 'firebase/firestore';
 import { firebaseConfig } from '../../firebase.config';
 
 export interface AuthUser {
@@ -72,6 +73,10 @@ export class AuthService {
 
   async loginAsGuest(): Promise<void> {
     await signInAnonymously(this.firebaseAuth);
+    const user = this.firebaseAuth.currentUser;
+    if (user) {
+      await this.assignProgressiveGuestName(user);
+    }
     await this.router.navigate(['/home']);
   }
 
@@ -100,5 +105,46 @@ export class AuthService {
       initializeApp(firebaseConfig);
     }
     return getAuth();
+  }
+
+  private async assignProgressiveGuestName(user: User): Promise<void> {
+    if (!user.isAnonymous) {
+      return; 
+    }
+    const db = getFirestore();
+    const counterRef = doc(db, 'counters', 'guests');
+
+    try {
+      const guestName = await runTransaction(db, async (tx) => {
+        const snap = await tx.get(counterRef);
+        let seq = 1;
+        if (snap.exists()) {
+          const data: any = snap.data();
+            seq = (typeof data.seq === 'number' ? data.seq : 0) + 1;
+          tx.update(counterRef, { seq });
+        } else {
+          tx.set(counterRef, { seq });
+        }
+        return `Guest-${seq}`;
+      });
+      await updateProfile(user, { displayName: guestName });
+      const mapped: AuthUser = {
+        uid: user.uid,
+        name: guestName,
+        email: 'guest@local',
+        isGuest: true,
+      };
+      this.setCurrentUser(mapped);
+    } catch {
+      const fallback = `Guest-${user.uid.substring(0, 6)}`;
+      await updateProfile(user, { displayName: fallback }).catch(() => {});
+      const mapped: AuthUser = {
+        uid: user.uid,
+        name: fallback,
+        email: 'guest@local',
+        isGuest: true,
+      };
+      this.setCurrentUser(mapped);
+    }
   }
 }

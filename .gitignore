@@ -9,6 +9,7 @@
 
 # Node
 /node_modules
+/functions/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -39,6 +40,7 @@ testem.log
 /typings
 __screenshots__/
 /package-lock.json
+/functions/package-lock.json
 
 # System files
 .DS_Store
