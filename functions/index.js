@@ -2,19 +2,44 @@ import fetch from 'node-fetch';
 import * as functions from 'firebase-functions';
 import { initializeApp, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getAppCheck } from 'firebase-admin/app-check';
 
-// Initialize Admin SDK once (modular API)
+// Basic CORS headers (adjust origin if you want to restrict)
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Firebase-AppCheck'
+};
+
 if (!getApps().length) {
   initializeApp();
 }
 
-// Expected action and minimum acceptable score
 const EXPECTED_ACTION = 'quiz_submit';
 const MIN_SCORE = 0.5; // adjust threshold as needed
 
+const appCheck = getAppCheck();
+
 export const verifyRecaptchaV3AndSaveQuiz = functions.region('europe-west1').https.onRequest(async (req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.set(CORS_HEADERS);
+    return res.status(204).send('');
+  }
   if (req.method !== 'POST') {
+    res.set(CORS_HEADERS);
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  res.set(CORS_HEADERS);
+
+  const appCheckToken = req.header('X-Firebase-AppCheck');
+  if (appCheckToken) {
+    try {
+      await appCheck.verifyToken(appCheckToken);
+    } catch (error) {
+      console.warn('App Check token verification failed', error);
+      return res.status(401).json({ error: 'Invalid App Check token' });
+    }
   }
 
   try {
@@ -88,7 +113,6 @@ export const verifyRecaptchaV3AndSaveQuiz = functions.region('europe-west1').htt
     batch.set(prefRef, prefDoc, { merge: true });
 
     await batch.commit();
-
     return res.status(200).json({ success: true, score, quizResultId: quizRef.id });
   } catch (err) {
     console.error(err);

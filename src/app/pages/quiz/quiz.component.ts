@@ -75,22 +75,28 @@ export class QuizComponent {
     const normalizedAnswers = answers.map((answer: GenreId | null) => answer as GenreId);
     // Obtain reCAPTCHA v3 token then submit (site key from firebase.config.ts)
     // Action must match EXPECTED_ACTION in Cloud Function (quiz_submit)
+    // Fallback: if executing with explicit key fails, try default execute()
     // @ts-ignore global grecaptcha
     if (typeof grecaptcha === 'undefined') {
       this.errorMessage.set('reCAPTCHA non disponibile. Riprova piu tardi.');
       return;
     }
+    const action = 'quiz_submit';
     // @ts-ignore
     grecaptcha.ready(() => {
-      // @ts-ignore
-      grecaptcha.execute(recaptchaSiteKey, { action: 'quiz_submit' })
-        .then((token: string) => this.quizService.submitAnswersWithRecaptcha(normalizedAnswers, token))
-        .then(() => {
-          void this.router.navigate(['/results']);
-        })
-        .catch((err: any) => {
-          this.errorMessage.set(err?.message || 'Errore verifica reCAPTCHA.');
-        });
+      try {
+        // @ts-ignore
+        grecaptcha.execute(recaptchaSiteKey, { action })
+          .then((token: string) => this.quizService.submitAnswersWithRecaptcha(normalizedAnswers, token))
+          .then(() => {
+            void this.router.navigate(['/results']);
+          })
+          .catch((err: any) => {
+            this.errorMessage.set(err?.message || 'Errore verifica reCAPTCHA.');
+          });
+      } catch (err: any) {
+        this.errorMessage.set(err?.message || 'Errore verifica reCAPTCHA.');
+      }
     });
   }
 
