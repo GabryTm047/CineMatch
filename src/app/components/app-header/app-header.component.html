@@ -1,0 +1,27 @@
+<header class="app-header">
+  <div class="app-header__left">
+    <a class="brand" routerLink="/home">
+      <img src="assets/imgs/CineMatch_banner.JPG" alt="CineMatch" class="brand__logo" />
+    </a>
+    <div>
+      <span class="greeting__label">Ciao, </span>
+      <strong class="greeting__name">{{ displayName() }}</strong>
+    </div>
+  </div>
+
+  <div class="app-header__right">
+    <div class="avatar" [class.avatar--image]="avatarUrl() !== null">
+      <img *ngIf="avatarUrl(); else initials" [src]="avatarUrl()!" alt="Avatar" />
+      <ng-template #initials>
+        <div>
+          <i class="fa-solid fa-user"></i>
+        </div>
+      </ng-template>
+    </div>
+    <button type="button" class="logout" (click)="logout()" aria-label="Esci">
+      <div>
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </div>
+    </button>
+  </div>
+</header>

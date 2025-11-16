@@ -21,6 +21,7 @@ export interface AuthUser {
   readonly name: string;
   readonly email: string;
   readonly isGuest: boolean;
+  readonly photoUrl: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -40,6 +41,7 @@ export class AuthService {
           name: user.displayName ?? user.email ?? 'Utente',
           email: user.email ?? 'unknown@local',
           isGuest: user.isAnonymous ?? false,
+          photoUrl: user.photoURL ?? null,
         };
         this.setCurrentUser(mapped);
       } else {
@@ -133,6 +135,7 @@ export class AuthService {
         name: guestName,
         email: 'guest@local',
         isGuest: true,
+        photoUrl: user.photoURL ?? null,
       };
       this.setCurrentUser(mapped);
     } catch {
@@ -143,6 +146,7 @@ export class AuthService {
         name: fallback,
         email: 'guest@local',
         isGuest: true,
+        photoUrl: user.photoURL ?? null,
       };
       this.setCurrentUser(mapped);
     }

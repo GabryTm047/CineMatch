@@ -14,6 +14,11 @@ export const routes: Routes = [
 		loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
 	},
 	{
+		path: 'statistics',
+		canActivate: [authGuard],
+		loadComponent: () => import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent)
+	},
+	{
 		path: 'quiz',
 		canActivate: [authGuard],
 		loadComponent: () => import('./pages/quiz/quiz.component').then(m => m.QuizComponent)

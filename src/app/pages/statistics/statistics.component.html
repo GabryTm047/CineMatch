@@ -1,0 +1,98 @@
+<app-header></app-header>
+
+<section class="statistics">
+  <header class="statistics__header">
+    <p class="eyebrow">Statistiche</p>
+    <h1>Tendenze del momento</h1>
+    <p class="lead">
+      Controlla i progressi dei tuoi quiz e scopri quali generi stanno conquistando la community.
+    </p>
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else {
+    @if (loading()) {
+      <div class="loading-state">Caricamento statistiche…</div>
+    } @else {
+      <div class="charts-grid">
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <h2>Quiz personali</h2>
+            <p>Percentuale del tuo genere principale negli ultimi quiz completati.</p>
+          </div>
+
+          @if (personalChartPoints().length) {
+            <div class="column-chart">
+              <div class="column-chart__bars">
+                @for (point of personalChartPoints(); track trackColumn($index, point)) {
+                  <div class="column-chart__bar">
+                    <div
+                      class="column-chart__pillar"
+                      [style.height]="point.height"
+                      [style.background]="point.color"
+                      [attr.title]="point.tooltip"
+                    ></div>
+                    <span class="column-chart__value">{{ point.valueLabel }}</span>
+                    <span class="column-chart__label">{{ point.dateLabel }}</span>
+                    <span class="column-chart__genre">{{ point.genreLabel }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <p class="empty-state">Completa un quiz per generare il grafico personale.</p>
+          }
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <h2>Community</h2>
+            <p>Panoramica degli ultimi generi preferiti da tutti gli utenti.</p>
+          </div>
+          <app-pie-chart [data]="globalPieSlices()"></app-pie-chart>
+        </article>
+      </div>
+
+      <section class="results-grid">
+        <div class="results-block">
+          <h3>I miei ultimi quiz</h3>
+          @if (myResultsList().length) {
+            <ul>
+              @for (item of myResultsList(); track item.id) {
+                <li>
+                  <span class="results-date">{{ item.formattedDate }}</span>
+                  <span class="results-name">{{ item.name }}</span>
+                  <span class="results-genre" [style.color]="item.color">
+                    {{ item.label }} ({{ item.percentage }}%)
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="empty-state">Nessun risultato personale da mostrare.</p>
+          }
+        </div>
+
+        <div class="results-block">
+          <h3>Ultimi quiz di tutti</h3>
+          @if (latestResultsList().length) {
+            <ul>
+              @for (item of latestResultsList(); track item.id) {
+                <li>
+                  <span class="results-date">{{ item.formattedDate }}</span>
+                  <span class="results-name">{{ item.name }}</span>
+                  <span class="results-genre" [style.color]="item.color">
+                    {{ item.label }} ({{ item.percentage }}%)
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="empty-state">I risultati globali saranno disponibili a breve.</p>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

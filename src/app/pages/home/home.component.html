@@ -1,9 +1,11 @@
+<app-header></app-header>
+
 <section class="home">
   <header class="hero">
     <div class="hero-text">
       <p class="eyebrow">
-        Ciao,
-        <span>{{ user()?.name || 'cinematofilo' }}</span>
+        Smetti di cercare,
+        <span>inizia a guardare.</span>
       </p>
       <h1>Scopri il mix perfetto di generi per la tua prossima visione</h1>
       <p class="lead">
@@ -12,7 +14,7 @@
       </p>
       <div class="buttons">
         <button type="button" class="primary" (click)="startQuiz()">Inizia qui</button>
-        <button type="button" class="ghost" (click)="logout()">Esci</button>
+        <button type="button" class="ghost" (click)="goToStatistics()">Statistiche</button>
       </div>
       @if (user()?.isGuest) {
       <p class="guest-hint">
@@ -64,31 +66,4 @@
     </article>
   </section>
 
-  <section class="results-lists">
-    <div class="results-block">
-      <h2>I miei ultimi quiz</h2>
-      <ul>
-        @for (r of myResults(); track $index) {
-        <li>
-          <span>{{ r.createdAt?.toDate ? (r.createdAt.toDate() | date : 'short') : '' }}</span>
-          — <strong>{{ r.name || r.email || 'Utente' }}</strong> —
-          {{ r.breakdown?.[0]?.label || 'N/D' }} ({{ r.breakdown?.[0]?.percentage || 0 }}%)
-        </li>
-        }
-      </ul>
-    </div>
-
-    <div class="results-block">
-      <h2>Ultimi quiz di tutti</h2>
-      <ul>
-        @for (r of latestResults(); track $index) {
-        <li>
-          <span>{{ r.createdAt?.toDate ? (r.createdAt.toDate() | date : 'short') : '' }}</span>
-          — <strong>{{ r.name || r.email || 'Utente' }}</strong> —
-          {{ r.breakdown?.[0]?.label || 'N/D' }} ({{ r.breakdown?.[0]?.percentage || 0 }}%)
-        </li>
-        }
-      </ul>
-    </div>
-  </section>
 </section>

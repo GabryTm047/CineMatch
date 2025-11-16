@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
 import { recaptchaSiteKey } from '../../../firebase.config';
 import { QuizQuestion, GenreId, QuizOption } from '../../shared/quiz.interface';
+import { AppHeaderComponent } from '../../components/app-header/app-header.component';
 @Component({
   selector: 'app-quiz',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppHeaderComponent],
   templateUrl: './quiz.component.html',
   styleUrls: ['./quiz.component.scss']
 })
