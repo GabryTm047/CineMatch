@@ -12,9 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Generate firebase.config.ts
+        env:
+          FIREBASE_CONFIG_TS: ${{ secrets.FIREBASE_CONFIG_TS }}
         run: |
-          echo "${{ secrets.FIREBASE_CONFIG_FILE }}" > src/firebase.config.ts
-
+          echo "$FIREBASE_CONFIG_TS" > src/firebase.config.ts
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
