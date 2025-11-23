@@ -7,28 +7,30 @@
 
   <div class="auth-card">
     <header class="auth-header">
-      <ng-container *ngIf="registerMode; else loginHeader">
+      @if (registerMode) {
         <h2>Crea il tuo profilo</h2>
         <p>Registra un account per salvare le preferenze dei tuoi film preferiti.</p>
-      </ng-container>
-      <ng-template #loginHeader>
+      } @else {
         <h2>Bentornato!</h2>
         <p>Effettua il login per visualizzare i film selezionati apposta per te.</p>
-      </ng-template>
+      }
 
       <button type="button" class="toggle" (click)="toggleMode()">
-        <ng-container *ngIf="registerMode; else switchToRegister">
+        @if (registerMode) {
           Hai già un account? <span>Accedi</span>
-        </ng-container>
-        <ng-template #switchToRegister>
+        } @else {
           Sei nuovo qui? <span>Registrati</span>
-        </ng-template>
+        }
       </button>
     </header>
 
-    <div class="alert alert-error" *ngIf="errorMessage() as error">{{ error }}</div>
+    @if (errorMessage(); as error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
 
-    <div class="alert alert-info" *ngIf="infoMessage() as info">{{ info }}</div>
+    @if (infoMessage(); as info) {
+      <div class="alert alert-info">{{ info }}</div>
+    }
 
     <form
       class="auth-form"
@@ -36,20 +38,22 @@
       (ngSubmit)="submit()"
       novalidate
     >
-      <div class="form-field" *ngIf="registerMode">
-        <label for="name">Nome</label>
-        <input
-          id="name"
-          type="text"
-          maxlength="40"
-          placeholder="Es. Gabriele"
-          formControlName="name"
-          [class.invalid]="registerControls.name.touched && registerControls.name.invalid"
-        />
-        <span class="field-error" *ngIf="registerControls.name.touched && registerControls.name.invalid">
-          Inserisci almeno 2 caratteri.
-        </span>
-      </div>
+      @if (registerMode) {
+        <div class="form-field">
+          <label for="name">Nome</label>
+          <input
+            id="name"
+            type="text"
+            maxlength="40"
+            placeholder="Es. Gabriele"
+            formControlName="name"
+            [class.invalid]="registerControls.name.touched && registerControls.name.invalid"
+          />
+          @if (registerControls.name.touched && registerControls.name.invalid) {
+            <span class="field-error"> Inserisci almeno 2 caratteri. </span>
+          }
+        </div>
+      }
 
       <div class="form-field">
         <label for="email">Email</label>
@@ -58,22 +62,18 @@
           type="email"
           placeholder="tuamail@esempio.com"
           formControlName="email"
-          [class.invalid]="registerMode
-            ? registerControls.email.touched && registerControls.email.invalid
-            : loginControls.email.touched && loginControls.email.invalid"
+          [class.invalid]="
+            registerMode
+              ? registerControls.email.touched && registerControls.email.invalid
+              : loginControls.email.touched && loginControls.email.invalid
+          "
         />
-        <span
-          class="field-error"
-          *ngIf="registerMode && registerControls.email.touched && registerControls.email.invalid"
-        >
-          Inserisci un indirizzo email valido.
-        </span>
-        <span
-          class="field-error"
-          *ngIf="!registerMode && loginControls.email.touched && loginControls.email.invalid"
-        >
-          Indica la tua email per accedere.
-        </span>
+        @if (registerMode && registerControls.email.touched && registerControls.email.invalid) {
+          <span class="field-error"> Inserisci un indirizzo email valido. </span>
+        }
+        @if (!registerMode && loginControls.email.touched && loginControls.email.invalid) {
+          <span class="field-error"> Indica la tua email per accedere. </span>
+        }
       </div>
 
       <div class="form-field">
@@ -83,50 +83,47 @@
           type="password"
           placeholder="Almeno 6 caratteri"
           formControlName="password"
-          [class.invalid]="registerMode
-            ? registerControls.password.touched && registerControls.password.invalid
-            : loginControls.password.touched && loginControls.password.invalid"
+          [class.invalid]="
+            registerMode
+              ? registerControls.password.touched && registerControls.password.invalid
+              : loginControls.password.touched && loginControls.password.invalid
+          "
         />
-        <span
-          class="field-error"
-          *ngIf="registerMode && registerControls.password.touched && registerControls.password.invalid"
-        >
-          La password deve avere almeno 6 caratteri.
-        </span>
-        <span
-          class="field-error"
-          *ngIf="!registerMode && loginControls.password.touched && loginControls.password.invalid"
-        >
-          Inserisci la tua password.
-        </span>
+        @if (registerMode && registerControls.password.touched && registerControls.password.invalid) {
+          <span class="field-error"> La password deve avere almeno 6 caratteri. </span>
+        }
+        @if (!registerMode && loginControls.password.touched && loginControls.password.invalid) {
+          <span class="field-error"> Inserisci la tua password. </span>
+        }
       </div>
 
-      <div class="form-field" *ngIf="registerMode">
-        <label for="confirmPassword">Conferma password</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          placeholder="Ripeti la password"
-          formControlName="confirmPassword"
-          [class.invalid]="registerControls.confirmPassword.touched
-            && (registerControls.confirmPassword.invalid || registerForm.hasError('mismatch'))"
-        />
-        <span
-          class="field-error"
-          *ngIf="registerControls.confirmPassword.touched
-            && (registerControls.confirmPassword.invalid || registerForm.hasError('mismatch'))"
-        >
-          Le password devono coincidere.
-        </span>
-      </div>
+      @if (registerMode) {
+        <div class="form-field">
+          <label for="confirmPassword">Conferma password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            placeholder="Ripeti la password"
+            formControlName="confirmPassword"
+            [class.invalid]="
+              registerControls.confirmPassword.touched &&
+              (registerControls.confirmPassword.invalid || registerForm.hasError('mismatch'))
+            "
+          />
+          @if (
+            registerControls.confirmPassword.touched &&
+            (registerControls.confirmPassword.invalid || registerForm.hasError('mismatch'))
+          ) {
+            <span class="field-error"> Le password devono coincidere. </span>
+          }
+        </div>
+      }
 
       <div class="actions">
         <button type="submit" class="primary">
           {{ registerMode ? 'Registrati' : 'Accedi' }}
         </button>
-        <button type="button" class="ghost" (click)="continueAsGuest()">
-          Entra come ospite
-        </button>
+        <button type="button" class="ghost" (click)="continueAsGuest()">Entra come ospite</button>
         <button type="button" class="ghost with-icon" (click)="continueWithGoogle()">
           <img src="assets/imgs/google.svg" alt="Google" class="icon" />
           <span>Continua con Google</span>
