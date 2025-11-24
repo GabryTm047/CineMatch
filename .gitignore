@@ -48,3 +48,4 @@ Thumbs.db
 
 # Firebase config file
 /src/firebase.config.ts
+/package-lock.json
