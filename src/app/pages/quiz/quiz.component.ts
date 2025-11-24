@@ -88,7 +88,12 @@ export class QuizComponent {
       try {
         // @ts-ignore
         grecaptcha.execute(recaptchaSiteKey, { action })
-          .then((token: string) => this.quizService.submitAnswersWithRecaptcha(normalizedAnswers, token))
+          .then((token: string) => {
+            if (!token || typeof token !== 'string' || !token.trim().length) {
+              throw new Error('Token reCAPTCHA non valido.');
+            }
+            return this.quizService.submitAnswersWithRecaptcha(normalizedAnswers, token);
+          })
           .then(() => {
             void this.router.navigate(['/results']);
           })
