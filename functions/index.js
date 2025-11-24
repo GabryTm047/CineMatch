@@ -3,6 +3,7 @@ import * as functions from 'firebase-functions';
 import { initializeApp, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAppCheck } from 'firebase-admin/app-check';
+import crypto from 'crypto';
 
 // Basic CORS headers (adjust origin if you want to restrict)
 const CORS_HEADERS = {
@@ -43,8 +44,9 @@ export const verifyRecaptchaV3AndSaveQuiz = functions.region('europe-west1').htt
   }
 
   try {
-    const { token, answers, breakdown, totalAnswers, uid, name, isGuest } = req.body || {};
-    if (!token || !Array.isArray(answers) || !breakdown || typeof totalAnswers !== 'number' || !uid) {
+    const { token, uid, topGenre, createAt, isGuest, name } = req.body || {};
+    const genreValue = typeof topGenre === 'string' && topGenre.trim().length ? topGenre.trim() : null;
+    if (!token || !uid || !genreValue) {
       return res.status(400).json({ error: 'Invalid payload' });
     }
 
@@ -82,37 +84,29 @@ export const verifyRecaptchaV3AndSaveQuiz = functions.region('europe-west1').htt
       return res.status(403).json({ error: 'Low score', score });
     }
 
-    // At this point token is valid and trustworthy enough; save quiz result & preferences
     const db = getFirestore();
 
-    const quizDoc = {
-      uid,
-      name: name || 'Utente',
-      isGuest: !!isGuest,
-      totalAnswers,
-      answers,
-      breakdown,
-      createdAt: FieldValue.serverTimestamp()
-    };
+    const quizId = crypto
+      .createHash('sha256')
+      .update(`${uid}|${genreValue}|${Date.now().toString().slice(0, 7)}`) 
+      .digest('hex')
+      .slice(0, 32);
 
-    const batch = db.batch();
-    const quizRef = db.collection('quizResults').doc();
-    batch.set(quizRef, quizDoc);
+    const quizRef = db.collection('quizResults').doc(quizId);
+    const existing = await quizRef.get();
+    const safeName = typeof name === 'string' ? name.trim().slice(0, 60) : 'Utente';
+    if (!existing.exists) {
+      await quizRef.set({
+        uid,
+        topGenre: genreValue,
+        name: safeName,
+        isGuest: !!isGuest,
+        clientCreateAt: typeof createAt === 'number' ? createAt : null,
+        createdAt: FieldValue.serverTimestamp(),
+        quizId
+      });
+    }
 
-    const prefRef = db.collection('users').doc(uid).collection('preferences').doc('current');
-    const topGenres = breakdown.slice(0, 5).map(e => ({ id: e.id, label: e.label, percentage: e.percentage, color: e.color, count: e.count }));
-    const prefDoc = {
-      uid,
-      name: name || 'Utente',
-      isGuest: !!isGuest,
-      totalAnswers,
-      topGenres,
-      breakdown: topGenres,
-      updatedAt: FieldValue.serverTimestamp()
-    };
-    batch.set(prefRef, prefDoc, { merge: true });
-
-    await batch.commit();
     return res.status(200).json({ success: true, score, quizResultId: quizRef.id });
   } catch (err) {
     console.error(err);

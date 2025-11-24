@@ -80,48 +80,19 @@ export class QuizService {
     return getFirestore();
   }
 
-  private async saveResultToFirestore(result: QuizResult): Promise<void> {
-    try {
-      const user = this.auth.currentUser();
-      const docData = {
-        uid: user?.uid ?? 'anonymous',
-        name: user?.name ?? 'Utente',
-        email: user?.email ?? null,
-        isGuest: user?.isGuest ?? true,
-        totalAnswers: result.totalAnswers,
-        answers: result.answers,
-        breakdown: result.breakdown.map(e => ({
-          id: e.genre.id,
-          label: e.genre.label,
-          color: e.genre.color,
-          count: e.count,
-          percentage: e.percentage,
-        })),
-        createdAt: serverTimestamp(),
-      } as const;
-
-    } catch {
-    }
-  }
-
+ 
   async submitAnswersWithRecaptcha(answers: GenreId[], recaptchaToken: string): Promise<QuizResult> {
     const result = this.submitAnswers(answers);
     const user = this.auth.currentUser();
+    const top = result.breakdown[0];
     const payload = {
       token: recaptchaToken,
-      answers: result.answers,
-      breakdown: result.breakdown.map(e => ({
-        id: e.genre.id,
-        label: e.genre.label,
-        color: e.genre.color,
-        count: e.count,
-        percentage: e.percentage,
-      })),
-      totalAnswers: result.totalAnswers,
       uid: user?.uid ?? 'anonymous',
-      name: user?.name ?? 'Utente',
-      isGuest: user?.isGuest ?? true,
-    };
+      topGenre: top?.genre.id ?? 'unknown',
+      createAt: Date.now(),
+      isGuest: user?.isGuest ?? false,
+      name: user?.name ?? 'Utente'
+    } as const;
     try {
       const resp = await fetch('https://europe-west1-cinematch-gc.cloudfunctions.net/verifyRecaptchaV3AndSaveQuiz', {
         method: 'POST',
@@ -142,7 +113,7 @@ export class QuizService {
     }
   }
 
-  private async savePreferencesForUser(result: QuizResult): Promise<void> {
+   async savePreferencesForUser(result: QuizResult): Promise<void> {
     const user = this.auth.currentUser();
     if (!user?.uid) return;
     try {

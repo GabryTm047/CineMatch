@@ -144,6 +144,8 @@
   padding: 2rem;
   border: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.08);
+  max-height: 25rem;
+  overflow-y: auto;
 
   h3 {
     margin: 0 0 1.1rem;
@@ -157,6 +159,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
+    padding-right: 0.5rem;
   }
 
   li {
@@ -209,4 +212,23 @@
   .results-genre {
     justify-self: flex-start;
   }
+}
+
+.results-block::-webkit-scrollbar {
+  width: 0.35rem;
+}
+
+.results-block::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 999px;
+}
+
+.results-block::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.results-block {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) rgba(15, 23, 42, 0.4);
 }

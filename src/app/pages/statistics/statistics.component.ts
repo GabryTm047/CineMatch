@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { PieChartComponent, PieChartSlice } from '../../components/pie-chart/pie-chart.component';
+import { GENRES } from '../../shared/quiz.interface';
 import { QuizService } from '../../services/quiz.service';
 import { AppHeaderComponent } from '../../components/app-header/app-header.component';
 
@@ -9,9 +10,6 @@ interface ColumnChartPoint {
   readonly id: string;
   readonly dateLabel: string;
   readonly genreLabel: string;
-  readonly valueLabel: string;
-  readonly value: number;
-  readonly height: string;
   readonly color: string;
   readonly tooltip: string;
 }
@@ -20,8 +18,7 @@ interface ResultListItem {
   readonly id: string;
   readonly formattedDate: string;
   readonly name: string;
-  readonly label: string;
-  readonly percentage: number;
+  readonly genreLabel: string;
   readonly color: string;
 }
 
@@ -51,127 +48,82 @@ export class StatisticsComponent implements OnInit {
   readonly latestResults = signal<any[]>([]);
 
   readonly personalChartPoints = computed<ColumnChartPoint[]>(() => {
-    const source = this.myResults();
-    if (!Array.isArray(source) || !source.length) {
-      return [];
-    }
-
-    const enriched = source
+    const source = this.dedupeResults(this.myResults());
+    if (!Array.isArray(source) || !source.length) return [];
+    return source
       .map((result, index) => {
         const createdAt = this.extractDate(result?.createdAt);
-        const topEntry = this.extractTopBreakdownEntry(result?.breakdown);
-        if (!createdAt || !topEntry) {
-          return null;
-        }
-        const value = this.ensureNumber(topEntry.percentage);
+        const top = this.extractTopGenre(result);
+        if (!createdAt || !top) return null;
         return {
           id: `${createdAt.getTime()}-${index}`,
           date: createdAt,
-          label: topEntry.label,
-          color: topEntry.color,
-          value
+          genre: top
         };
       })
-      .filter((entry): entry is { id: string; date: Date; label: string; color: string; value: number } =>
-        Boolean(entry)
-      )
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    if (!enriched.length) {
-      return [];
-    }
-
-    const maxValue = enriched.reduce((max, point) => Math.max(max, point.value), 0) || 100;
-
-    return enriched.map(point => {
-      const safeValue = Math.max(0, Math.min(point.value, 100));
-      const height = Math.max(6, Math.round((safeValue / maxValue) * 100));
-      const displayValue = Math.round(safeValue * 10) / 10;
-      return {
-        id: point.id,
-        dateLabel: this.shortDateFormatter.format(point.date),
-        genreLabel: point.label,
-        valueLabel: `${displayValue}%`,
-        value: displayValue,
-        height: `${Math.min(100, height)}%`,
-        color: point.color,
-        tooltip: `${this.fullDateFormatter.format(point.date)} • ${point.label} (${displayValue}%)`
-      } satisfies ColumnChartPoint;
-    });
+      .filter((e): e is { id: string; date: Date; genre: { id: string; label: string; color: string } } => Boolean(e))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .map(entry => ({
+        id: entry.id,
+        dateLabel: this.shortDateFormatter.format(entry.date),
+        genreLabel: entry.genre.label,
+        color: entry.genre.color,
+        tooltip: this.fullDateFormatter.format(entry.date) + ' • ' + entry.genre.label
+      }));
   });
 
   readonly myResultsList = computed<ResultListItem[]>(() => {
     const source = this.myResults();
-    if (!Array.isArray(source) || !source.length) {
-      return [];
-    }
+    if (!Array.isArray(source) || !source.length) return [];
     return source.map((result, index) => {
       const createdAt = this.extractDate(result?.createdAt);
-      const topEntry = this.extractTopBreakdownEntry(result?.breakdown);
+      const top = this.extractTopGenre(result);
       return {
         id: this.extractId(result, index),
         formattedDate: createdAt ? this.fullDateFormatter.format(createdAt) : 'N/D',
         name: this.extractName(result),
-        label: topEntry?.label ?? 'N/D',
-        percentage: Math.round(this.ensureNumber(topEntry?.percentage) * 10) / 10,
-        color: topEntry?.color ?? 'var(--color-primary)'
+        genreLabel: top?.label ?? 'N/D',
+        color: top?.color ?? 'var(--color-primary)'
       } satisfies ResultListItem;
     });
   });
 
   readonly latestResultsList = computed<ResultListItem[]>(() => {
-    const source = this.latestResults();
-    if (!Array.isArray(source) || !source.length) {
-      return [];
-    }
+    const source = this.uniqueLatestByUser(this.latestResults());
+    if (!Array.isArray(source) || !source.length) return [];
     return source.map((result, index) => {
       const createdAt = this.extractDate(result?.createdAt);
-      const topEntry = this.extractTopBreakdownEntry(result?.breakdown);
+      const top = this.extractTopGenre(result);
       return {
         id: this.extractId(result, index),
         formattedDate: createdAt ? this.fullDateFormatter.format(createdAt) : 'N/D',
         name: this.extractName(result),
-        label: topEntry?.label ?? 'N/D',
-        percentage: Math.round(this.ensureNumber(topEntry?.percentage) * 10) / 10,
-        color: topEntry?.color ?? 'var(--color-primary)'
+        genreLabel: top?.label ?? 'N/D',
+        color: top?.color ?? 'var(--color-primary)'
       } satisfies ResultListItem;
     });
   });
 
   readonly globalPieSlices = computed<PieChartSlice[]>(() => {
     const source = this.latestResults();
-    if (!Array.isArray(source) || !source.length) {
-      return [];
+    if (!Array.isArray(source) || !source.length) return [];
+    const counts = new Map<string, number>();
+    for (const r of source) {
+      const top = this.extractTopGenre(r);
+      if (!top) continue;
+      counts.set(top.id, (counts.get(top.id) ?? 0) + 1);
     }
-
-    const totals = new Map<string, { label: string; color: string; value: number }>();
-
-    for (const result of source) {
-      const topEntry = this.extractTopBreakdownEntry(result?.breakdown);
-      if (!topEntry) {
-        continue;
-      }
-      const key = topEntry.label;
-      const current = totals.get(key) ?? { label: topEntry.label, color: topEntry.color, value: 0 };
-      current.value += this.ensureNumber(topEntry.percentage) || 0;
-      current.color = topEntry.color;
-      totals.set(key, current);
-    }
-
-    const slices = Array.from(totals.values());
-    const totalValue = slices.reduce((sum, slice) => sum + slice.value, 0);
-    if (!totalValue) {
-      return [];
-    }
-
-    return slices
-      .map(slice => {
-        const percentage = totalValue ? Math.round((slice.value / totalValue) * 1000) / 10 : 0;
+    const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
+    if (!total) return [];
+    return Array.from(counts.entries())
+      .map(([id, value]) => {
+        const info = this.lookupGenre(id);
+        const percentage = Math.round((value / total) * 1000) / 10;
         return {
-          label: slice.label,
-          value: Math.round(slice.value * 10) / 10,
+          label: info.label,
+          value,
           percentage,
-          color: slice.color
+          color: info.color
         } satisfies PieChartSlice;
       })
       .sort((a, b) => b.value - a.value);
@@ -217,43 +169,28 @@ export class StatisticsComponent implements OnInit {
     return 'Utente';
   }
 
-  private extractTopBreakdownEntry(breakdown: any): { label: string; color: string; percentage: number } | null {
-    if (!Array.isArray(breakdown) || !breakdown.length) {
-      return null;
+  private extractTopGenre(result: any): { id: string; label: string; color: string } | null {
+    if (typeof result?.topGenre === 'string' && result.topGenre.trim().length) {
+      return this.lookupGenre(result.topGenre);
     }
-    const ordered = [...breakdown].sort((a, b) => this.ensureNumber(b?.percentage) - this.ensureNumber(a?.percentage));
-    const entry = ordered[0];
-    const label = this.extractLabel(entry);
-    const color = this.extractColor(entry);
-    const percentage = this.ensureNumber(entry?.percentage);
-    return {
-      label,
-      color,
-      percentage
-    };
+    if (Array.isArray(result?.breakdown) && result.breakdown.length) {
+      const ordered = [...result.breakdown].sort(
+        (a, b) => this.ensureNumber(b?.percentage) - this.ensureNumber(a?.percentage)
+      );
+      const entry = ordered[0];
+      const id = entry?.id || entry?.genre?.id;
+      if (typeof id !== 'string') return null;
+      return this.lookupGenre(id);
+    }
+    return null;
   }
 
-  private extractLabel(entry: any): string {
-    if (typeof entry?.label === 'string' && entry.label.trim().length) {
-      return entry.label;
+  private lookupGenre(id: string): { id: string; label: string; color: string } {
+    const found = GENRES.find(g => g.id === id);
+    if (found) {
+      return { id: found.id, label: found.label, color: found.color };
     }
-    if (typeof entry?.genre?.label === 'string' && entry.genre.label.trim().length) {
-      return entry.genre.label;
-    }
-    if (typeof entry?.id === 'string') {
-      return entry.id;
-    }
-    return 'N/D';
-  }
-
-  private extractColor(entry: any): string {
-    if (typeof entry?.color === 'string' && entry.color.trim().length) {
-      return entry.color;
-    }
-    if (typeof entry?.genre?.color === 'string' && entry.genre.color.trim().length) {
-      return entry.genre.color;
-    }
-    return 'var(--color-primary)';
+    return { id, label: id, color: 'var(--color-primary)' };
   }
 
   private extractDate(input: unknown): Date | null {
@@ -285,5 +222,52 @@ export class StatisticsComponent implements OnInit {
       return numeric;
     }
     return 0;
+  }
+
+  private dedupeResults(results: any[]): any[] {
+    if (!Array.isArray(results) || !results.length) {
+      return [];
+    }
+    const seen = new Set<string>();
+    const unique: any[] = [];
+    for (const r of results) {
+      const createdAt = this.extractDate(r?.createdAt);
+      const top = this.extractTopGenre(r);
+      const keyParts = [
+        r?.uid ?? 'unknown',
+        createdAt ? createdAt.getTime() : 'no-date',
+        top?.id ?? 'no-id'
+      ];
+      const key = keyParts.join('|');
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      unique.push(r);
+    }
+    return unique;
+  }
+
+  private uniqueLatestByUser(results: any[]): any[] {
+    if (!Array.isArray(results) || !results.length) return [];
+    const latestMap = new Map<string, any>();
+    for (const r of results) {
+      const uid = typeof r?.uid === 'string' ? r.uid : 'unknown';
+      const date = this.extractDate(r?.createdAt);
+      const current = latestMap.get(uid);
+      if (!current) {
+        latestMap.set(uid, r);
+        continue;
+      }
+      const currentDate = this.extractDate(current?.createdAt);
+      if (date && currentDate && date.getTime() > currentDate.getTime()) {
+        latestMap.set(uid, r);
+      }
+    }
+    return Array.from(latestMap.values()).sort((a, b) => {
+      const da = this.extractDate(a?.createdAt)?.getTime() ?? 0;
+      const db = this.extractDate(b?.createdAt)?.getTime() ?? 0;
+      return db - da; // più recenti prima
+    });
   }
 }
