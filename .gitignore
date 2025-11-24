@@ -39,7 +39,6 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
-/package-lock.json
 /functions/package-lock.json
 
 # System files
@@ -48,4 +47,3 @@ Thumbs.db
 
 # Firebase config file
 /src/firebase.config.ts
-/package-lock.json
