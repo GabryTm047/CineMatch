@@ -73,35 +73,51 @@ export class StatisticsComponent implements OnInit {
   });
 
   readonly myResultsList = computed<ResultListItem[]>(() => {
-    const source = this.myResults();
+    const source = this.dedupeResults(this.myResults());
     if (!Array.isArray(source) || !source.length) return [];
-    return source.map((result, index) => {
+    const seen = new Set<string>();
+    return source.reduce<ResultListItem[]>((acc, result, index) => {
       const createdAt = this.extractDate(result?.createdAt);
       const top = this.extractTopGenre(result);
-      return {
+      const item: ResultListItem = {
         id: this.extractId(result, index),
         formattedDate: createdAt ? this.fullDateFormatter.format(createdAt) : 'N/D',
         name: this.extractName(result),
         genreLabel: top?.label ?? 'N/D',
         color: top?.color ?? 'var(--color-primary)'
       } satisfies ResultListItem;
-    });
+      const key = `${item.formattedDate}|${item.name}|${item.genreLabel}`;
+      if (seen.has(key)) {
+        return acc;
+      }
+      seen.add(key);
+      acc.push(item);
+      return acc;
+    }, []);
   });
 
   readonly latestResultsList = computed<ResultListItem[]>(() => {
-    const source = this.uniqueLatestByUser(this.latestResults());
+    const source = this.dedupeResults(this.latestResults());
     if (!Array.isArray(source) || !source.length) return [];
-    return source.map((result, index) => {
+    const seen = new Set<string>();
+    return source.reduce<ResultListItem[]>((acc, result, index) => {
       const createdAt = this.extractDate(result?.createdAt);
       const top = this.extractTopGenre(result);
-      return {
+      const item: ResultListItem = {
         id: this.extractId(result, index),
         formattedDate: createdAt ? this.fullDateFormatter.format(createdAt) : 'N/D',
         name: this.extractName(result),
         genreLabel: top?.label ?? 'N/D',
         color: top?.color ?? 'var(--color-primary)'
-      } satisfies ResultListItem;
-    });
+      };
+      const key = `${item.formattedDate}|${item.name}|${item.genreLabel}`;
+      if (seen.has(key)) {
+        return acc;
+      }
+      seen.add(key);
+      acc.push(item);
+      return acc;
+    }, []);
   });
 
   readonly globalPieSlices = computed<PieChartSlice[]>(() => {
@@ -246,28 +262,5 @@ export class StatisticsComponent implements OnInit {
       unique.push(r);
     }
     return unique;
-  }
-
-  private uniqueLatestByUser(results: any[]): any[] {
-    if (!Array.isArray(results) || !results.length) return [];
-    const latestMap = new Map<string, any>();
-    for (const r of results) {
-      const uid = typeof r?.uid === 'string' ? r.uid : 'unknown';
-      const date = this.extractDate(r?.createdAt);
-      const current = latestMap.get(uid);
-      if (!current) {
-        latestMap.set(uid, r);
-        continue;
-      }
-      const currentDate = this.extractDate(current?.createdAt);
-      if (date && currentDate && date.getTime() > currentDate.getTime()) {
-        latestMap.set(uid, r);
-      }
-    }
-    return Array.from(latestMap.values()).sort((a, b) => {
-      const da = this.extractDate(a?.createdAt)?.getTime() ?? 0;
-      const db = this.extractDate(b?.createdAt)?.getTime() ?? 0;
-      return db - da; // più recenti prima
-    });
   }
 }
