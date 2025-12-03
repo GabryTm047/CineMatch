@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-
 import { PieChartComponent, PieChartSlice } from '../../components/pie-chart/pie-chart.component';
-import { GENRES } from '../../shared/quiz.interface';
 import { QuizService } from '../../services/quiz.service';
 import { AppHeaderComponent } from '../../components/app-header/app-header.component';
+import { GENRES } from '../../shared/genre.interface';
 
 interface ColumnChartPoint {
   readonly id: string;

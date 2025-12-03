@@ -1,17 +1,15 @@
 import { computed, Injectable, signal, inject } from '@angular/core';
 import {
-  GenreId,
-  GenreInfo,
   QuizBreakdownEntry,
   QuizQuestion,
   QuizResult,
   QUESTIONS,
-  GENRES,
 } from '../shared/quiz.interface';
 import { AuthService } from './auth.service';
 import { getApps, initializeApp } from 'firebase/app';
-import { getFirestore, addDoc, collection, serverTimestamp, query, where, orderBy, limit, getDocs, Firestore, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, serverTimestamp, query, where, orderBy, limit, getDocs, Firestore, doc, setDoc } from 'firebase/firestore';
 import { firebaseConfig } from '../../firebase.config';
+import { GENRES, GenreId, GenreInfo } from '../shared/genre.interface';
 
 @Injectable({ providedIn: `root` })
 export class QuizService {

@@ -1,14 +1,4 @@
-export type GenreId =
-  | `azione`
-  | `avventura`
-  | `commedia`
-  | `dramma`
-  | `fantascienza`
-  | `horror`
-  | `thriller`
-  | `animazione`
-  | `romantico`
-  | `documentario`;
+import { GenreId, GenreInfo } from "./genre.interface";
 
 export interface QuizOption {
   readonly label: string;
@@ -22,12 +12,6 @@ export interface QuizQuestion {
   readonly options: QuizOption[];
 }
 
-export interface GenreInfo {
-  readonly id: GenreId;
-  readonly label: string;
-  readonly color: string;
-}
-
 export interface QuizBreakdownEntry {
   readonly genre: GenreInfo;
   readonly count: number;
@@ -39,19 +23,6 @@ export interface QuizResult {
   readonly breakdown: QuizBreakdownEntry[];
   readonly totalAnswers: number;
 }
-
-export const GENRES: GenreInfo[] = [
-  { id: `azione`, label: `Azione`, color: `#ef4444` },
-  { id: `avventura`, label: `Avventura`, color: `#f97316` },
-  { id: `commedia`, label: `Commedia`, color: `#facc15` },
-  { id: `dramma`, label: `Dramma`, color: `#60a5fa` },
-  { id: `fantascienza`, label: `Fantascienza`, color: `#818cf8` },
-  { id: `horror`, label: `Horror`, color: `#a855f7` },
-  { id: `thriller`, label: `Thriller`, color: `#f472b6` },
-  { id: `animazione`, label: `Animazione`, color: `#2dd4bf` },
-  { id: `romantico`, label: `Romantico`, color: `#fb7185` },
-  { id: `documentario`, label: `Documentario`, color: `#38bdf8` },
-];
 
 export const QUESTIONS: QuizQuestion[] = [
   {
