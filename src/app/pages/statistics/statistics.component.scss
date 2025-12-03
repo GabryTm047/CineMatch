@@ -97,6 +97,11 @@
   gap: 1rem;
 }
 
+.counter {
+  margin: 1rem 0rem;
+  display: flex;
+}
+
 .column-chart__bar {
   display: grid;
   grid-template-rows: auto auto auto;
