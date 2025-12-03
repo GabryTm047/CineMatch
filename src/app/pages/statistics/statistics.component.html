@@ -46,6 +46,12 @@
 
     <div class="results-block">
       <h3>Ultimi quiz di tutti</h3>
+        @if (latestSummary().total) {
+        <span class="counter">
+          ({{ latestSummary().total }} Quiz totali - {{ latestSummary().guests }} anonimi,
+          {{ latestSummary().registered }} utenti registrati)
+        </span>
+        }
       @if (latestResultsList().length) {
       <ul>
         @for (item of latestResultsList(); track item.id) {

@@ -66,4 +66,54 @@
     </article>
   </section>
 
+  <section class="movies" *ngIf="movieItems().length; else loadingTpl">
+    <h2>Film consigliati in base alle statistiche</h2>
+    <div class="carousel">
+      <button type="button" class="nav prev" (click)="prevSlide()" aria-label="Precedente">
+        ‹
+      </button>
+      <div class="viewport">
+        <ng-container *ngIf="currentMovie() as m">
+          <div class="slide">
+            <ng-container *ngIf="m.poster_path; else noImage">
+              <img [src]="'https://image.tmdb.org/t/p/w342' + m.poster_path" [alt]="m.title" />
+            </ng-container>
+            <ng-template #noImage>
+              <div class="no-image">Nessuna immagine disponibile</div>
+            </ng-template>
+            <div class="movie-details">
+              <h3>{{ m.title }}</h3>
+              <p class="overview">{{ m.overview }}</p>
+              <p class="rating"><strong>Voto:</strong> {{ m.vote_average }}</p>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <button type="button" class="nav next" (click)="nextSlide()" aria-label="Successivo">
+        ›
+      </button>
+    </div>
+    <div class="carousel-toolbar">
+      <button
+        type="button"
+        class="to-start"
+        *ngIf="(movies()?.page ?? 1) > 1"
+        (click)="goToStart()"
+      >
+        Torna all'inizio
+      </button>
+      <div class="counts">
+        <span>Pagina {{ movies()?.page ?? 1 }} di {{ movies()?.total_pages ?? 0 }}</span>
+      </div>
+    </div>
+    <div class="dots">
+      @for (i of dots(); track $index) {
+      <span class="dot" [class.active]="$index === (currentIndex() % 20)"></span>
+      }
+    </div>
+  </section>
+
+  <ng-template #loadingTpl>
+    <div class="loading-state">Caricamento film…</div>
+  </ng-template>
 </section>

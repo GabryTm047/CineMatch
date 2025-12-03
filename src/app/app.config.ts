@@ -1,4 +1,5 @@
 import { ApplicationConfig,importProvidersFrom , provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -9,6 +10,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    provideHttpClient(),
     importProvidersFrom(FontAwesomeModule)
   ]
 };

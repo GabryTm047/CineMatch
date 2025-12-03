@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-
 import { PieChartComponent, PieChartSlice } from '../../components/pie-chart/pie-chart.component';
-import { GENRES } from '../../shared/quiz.interface';
 import { QuizService } from '../../services/quiz.service';
 import { AppHeaderComponent } from '../../components/app-header/app-header.component';
+import { GENRES } from '../../shared/genre.interface';
 
 interface ColumnChartPoint {
   readonly id: string;
@@ -97,7 +96,7 @@ export class StatisticsComponent implements OnInit {
   });
 
   readonly latestResultsList = computed<ResultListItem[]>(() => {
-    const source = this.dedupeResults(this.latestResults());
+    const source = this.uniqueLatestByUser(this.latestResults());
     if (!Array.isArray(source) || !source.length) return [];
     const seen = new Set<string>();
     return source.reduce<ResultListItem[]>((acc, result, index) => {
@@ -121,7 +120,7 @@ export class StatisticsComponent implements OnInit {
   });
 
   readonly globalPieSlices = computed<PieChartSlice[]>(() => {
-    const source = this.latestResults();
+    const source = this.uniqueLatestByUser(this.latestResults());
     if (!Array.isArray(source) || !source.length) return [];
     const counts = new Map<string, number>();
     for (const r of source) {
@@ -144,6 +143,69 @@ export class StatisticsComponent implements OnInit {
       })
       .sort((a, b) => b.value - a.value);
   });
+
+  readonly latestSummary = computed(() => {
+    const source = this.uniqueLatestByUser(this.latestResults());
+    if (!Array.isArray(source) || !source.length) {
+      return { total: 0, guests: 0, registered: 0 } as const;
+    }
+    let guests = 0;
+    let registered = 0;
+    for (const r of source) {
+      if (r?.isGuest) {
+        guests++;
+      } else {
+        registered++;
+      }
+    }
+    return { total: guests + registered, guests, registered } as const;
+  });
+
+  readonly filteredResultsSummary = computed(() => {
+    const source = this.uniqueLatestByUser(this.latestResults());
+    if (!Array.isArray(source) || !source.length) {
+      return { guests: 0, registered: 0 } as const;
+    }
+
+    let guests = 0;
+    let registered = 0;
+
+    for (const result of source) {
+      if (result?.isGuest) {
+        guests++;
+      } else {
+        registered++;
+      }
+    }
+
+    return { guests, registered } as const;
+  });
+
+  private uniqueLatestByUser(results: any[]): any[] {
+    if (!Array.isArray(results) || !results.length) return [];
+
+    const latestMap = new Map<string, any>();
+
+    for (const result of results) {
+      const uid = result?.uid;
+      const createdAt = this.extractDate(result?.createdAt)?.getTime() ?? 0;
+
+      if (!uid) continue;
+
+      const existing = latestMap.get(uid);
+      const existingDate = existing ? this.extractDate(existing?.createdAt)?.getTime() ?? 0 : -1;
+
+      if (!existing || createdAt > existingDate) {
+        latestMap.set(uid, result);
+      }
+    }
+
+    return Array.from(latestMap.values()).sort((a, b) => {
+      const dateA = this.extractDate(a?.createdAt)?.getTime() ?? 0;
+      const dateB = this.extractDate(b?.createdAt)?.getTime() ?? 0;
+      return dateB - dateA;
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     this.loading.set(true);

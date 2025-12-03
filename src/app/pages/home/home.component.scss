@@ -110,7 +110,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-  color: var(--color-primary-lighter);
+    color: var(--color-primary-lighter);
   }
 
   ul {
@@ -192,4 +192,117 @@
   .highlights {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.movies {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 1.2rem;
+  padding: 1.75rem;
+}
+
+.carousel {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carousel .nav {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: rgba(226, 232, 240, 0.85);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.carousel .nav:hover {
+  border-color: rgba(226, 232, 240, 0.7);
+  transform: translateY(-1px);
+}
+
+.viewport {
+  overflow: hidden;
+}
+
+.slide {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  padding: 1rem 1rem;
+}
+
+.slide img {
+  width: 250px;
+  height: auto;
+  border-radius: 0.8rem;
+  box-shadow: 0 0px 10px 10px  var(--color-primary);
+}
+
+.movie-details{
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+
+.movie-details h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
+}
+
+.movie-details .overview {
+  margin: 0 0 0.3rem;
+  color: rgba(203, 213, 225, 0.8);
+}
+
+.movie-details .rating {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.dot.active {
+  background: var(--color-primary);
+}
+
+.carousel-toolbar {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carousel-toolbar .to-start {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: rgba(226, 232, 240, 0.9);
+  border-radius: 0.6rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+}
+
+.carousel-toolbar .counts {
+  display: flex;
+  gap: 0.8rem;
+  color: rgba(203, 213, 225, 0.85);
 }

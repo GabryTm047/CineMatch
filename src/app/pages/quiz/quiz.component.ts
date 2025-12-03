@@ -3,8 +3,9 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
 import { recaptchaSiteKey } from '../../../firebase.config';
-import { QuizQuestion, GenreId, QuizOption } from '../../shared/quiz.interface';
+import { QuizQuestion, QuizOption } from '../../shared/quiz.interface';
 import { AppHeaderComponent } from '../../components/app-header/app-header.component';
+import { GenreId } from '../../shared/genre.interface';
 @Component({
   selector: 'app-quiz',
   standalone: true,
