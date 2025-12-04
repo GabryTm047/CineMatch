@@ -7,13 +7,8 @@
         Smetti di cercare,
         <span>inizia a guardare.</span>
       </p>
-      <h1>Scopri il mix perfetto di generi per la tua prossima visione</h1>
-      <p class="lead">
-        Rispondi a 10 domande mirate sui tuoi gusti attuali: CineMatch ti dira i generi che ami di
-        più in base il mood attuale.
-      </p>
       <div class="buttons">
-        <button type="button" class="primary" (click)="startQuiz()">Inizia qui</button>
+        <button type="button" class="primary" (click)="startQuiz()">Inizia il quiz</button>
         <button type="button" class="ghost" (click)="goToStatistics()">Statistiche</button>
       </div>
       @if (user()?.isGuest) {
@@ -22,7 +17,64 @@
       </p>
       }
     </div>
-
+  </header>
+  @if (movieItems().length) {
+  <section class="movies">
+    <h2>Film consigliati in base alle statistiche</h2>
+    <div class="carousel">
+      <div class="nav prev" (click)="prevSlide()" aria-label="Precedente">
+        <i class="fa-solid fa-circle-left"></i>
+      </div>
+      <div class="viewport">
+        <ng-container *ngIf="currentMovie() as m">
+          <div class="slide">
+            @if (m.poster_path) {
+            <div>
+              <img [src]="'https://image.tmdb.org/t/p/w342' + m.poster_path" [alt]="m.title" />
+            </div>
+            }@else {
+            <div>
+              <div class="no-image">Nessuna immagine disponibile</div>
+            </div>
+            }
+            <div class="movie-details">
+              <h3>{{ m.title }}</h3>
+              <p class="overview">{{ m.overview }}</p>
+              <p class="rating"><strong>Voto:</strong> {{ m.vote_average }}</p>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <div class="nav next" (click)="nextSlide()" aria-label="Successivo">
+        <i class="fa-solid fa-circle-right"></i>
+      </div>
+    </div>
+    <div class="carousel-toolbar">
+      @if((movies()?.page ?? 1) > 1){ }
+      <button type="button" class="to-start" (click)="goToStart()">Torna all'inizio</button>
+      <div class="counts">
+        <span>Pagina {{ movies()?.page ?? 1 }} di {{ movies()?.total_pages ?? 0 }}</span>
+      </div>
+    </div>
+    <div class="dots">
+      @for (i of dots(); track $index) {
+      <span class="dot" [class.active]="$index === currentIndex() % 20"></span>
+      }
+    </div>
+  </section>
+  } @else {
+  <div>
+    <div class="loading-state">Caricamento film…</div>
+  </div>
+  }
+  <header class="hero">
+    <div class="hero-text">
+      <h1>Scopri il mix perfetto di generi per la tua prossima visione</h1>
+      <p class="lead">
+        Rispondi a 10 domande mirate sui tuoi gusti attuali: CineMatch ti dira i generi che ami di
+        più in base il mood attuale.
+      </p>
+    </div>
     <div class="hero-card">
       <div class="card-title">Come funziona?</div>
       <ul>
@@ -65,55 +117,4 @@
       </p>
     </article>
   </section>
-
-  <section class="movies" *ngIf="movieItems().length; else loadingTpl">
-    <h2>Film consigliati in base alle statistiche</h2>
-    <div class="carousel">
-      <button type="button" class="nav prev" (click)="prevSlide()" aria-label="Precedente">
-        ‹
-      </button>
-      <div class="viewport">
-        <ng-container *ngIf="currentMovie() as m">
-          <div class="slide">
-            <ng-container *ngIf="m.poster_path; else noImage">
-              <img [src]="'https://image.tmdb.org/t/p/w342' + m.poster_path" [alt]="m.title" />
-            </ng-container>
-            <ng-template #noImage>
-              <div class="no-image">Nessuna immagine disponibile</div>
-            </ng-template>
-            <div class="movie-details">
-              <h3>{{ m.title }}</h3>
-              <p class="overview">{{ m.overview }}</p>
-              <p class="rating"><strong>Voto:</strong> {{ m.vote_average }}</p>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-      <button type="button" class="nav next" (click)="nextSlide()" aria-label="Successivo">
-        ›
-      </button>
-    </div>
-    <div class="carousel-toolbar">
-      <button
-        type="button"
-        class="to-start"
-        *ngIf="(movies()?.page ?? 1) > 1"
-        (click)="goToStart()"
-      >
-        Torna all'inizio
-      </button>
-      <div class="counts">
-        <span>Pagina {{ movies()?.page ?? 1 }} di {{ movies()?.total_pages ?? 0 }}</span>
-      </div>
-    </div>
-    <div class="dots">
-      @for (i of dots(); track $index) {
-      <span class="dot" [class.active]="$index === (currentIndex() % 20)"></span>
-      }
-    </div>
-  </section>
-
-  <ng-template #loadingTpl>
-    <div class="loading-state">Caricamento film…</div>
-  </ng-template>
 </section>

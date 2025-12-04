@@ -48,6 +48,7 @@
     color: rgba(226, 232, 240, 0.78);
     font-size: 1.05rem;
     line-height: 1.6;
+    text-align: justify;
   }
 }
 
@@ -55,7 +56,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  max-width: 260px;
 
   button {
     border-radius: 0.95rem;
@@ -211,8 +211,8 @@
 
 .carousel .nav {
   background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  color: rgba(226, 232, 240, 0.85);
+  color: var(--color-primary);
+  font-size: 3rem;
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -305,4 +305,68 @@
   display: flex;
   gap: 0.8rem;
   color: rgba(203, 213, 225, 0.85);
+}
+
+@media (max-width: 600px) {
+  .movies {
+    padding: 1.25rem;
+  }
+
+  .carousel {
+    grid-template-columns: 48px 1fr 48px;
+    gap: 0.75rem;
+  }
+
+  .carousel .nav {
+    width: 48px;
+    height: 48px;
+  }
+
+  .slide {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .slide img {
+    width: 180px;
+    max-width: 70vw;
+    box-shadow: 0 0 10px 6px var(--color-primary);
+  }
+
+  .movie-details {
+    text-align: center;
+    padding: 0 0.25rem;
+  }
+
+  .movie-details h3 {
+    font-size: 1.05rem;
+  }
+
+  .movie-details .overview {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    line-clamp: 6; 
+    -webkit-line-clamp: 6; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .dots {
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .slide img {
+    width: 150px;
+  }
+
+  .carousel {
+    grid-template-columns: 44px 1fr 44px;
+  }
 }
